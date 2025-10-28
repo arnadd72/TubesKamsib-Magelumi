@@ -1,19 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-KA">
     <title>Students</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
+
+        <!-- BARIS 12-23 [DITAMBAHKAN] Blok untuk menampilkan notifikasi (flash messages) -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- BARIS 26-33[DITAMBAHKAN] Tombol Login/Logout -->
+        <div class="mb-3 text-right">
+            {% if session.get('logged_in') %}
+                <span class="mr-2">Selamat datang, Admin!</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-sm">Login</a>
+            {% endif %}
+        </div>
+
+
         <h1>Students</h1>
+        
+        <!-- BARIS 39 [DITAMBAHKAN] Cek session. Jika login, tampilkan form. -->
+        {% if session.get('logged_in') %}
         <form action="/add" method="POST">
             <input type="text" name="name" placeholder="Name" required>
             <input type="number" name="age" placeholder="Age" required>
             <input type="text" name="grade" placeholder="Grade" required>
             <button type="submit" class="btn btn-primary">Add Student</button>
         </form>
+        {% else %}
+        <!-- BARIS 46-51 [DITAMBAHKAN] Pesan jika belum login -->
+        <div class="alert alert-info">
+            Anda harus login untuk menambah data siswa baru.
+        </div>
+        {% endif %}
+        
         <table class="table mt-3">
             <thead>
                 <tr>
@@ -30,13 +66,27 @@
                     <td>{{ student.age }}</td>
                     <td>{{ student.grade }}</td>
                     <td>
-                        <a href="/edit/{{ student.id }}" class="btn btn-warning">Edit</a>
-                        <a href="/delete/{{ student.id }}" class="btn btn-danger">Delete</a>
+                        <!-- BARIS 70 [DITAMBAHKAN] Cek session. Jika login, tampilkan tombol aksi. -->
+                        {% if session.get('logged_in') %}
+                            <a href="/edit/{{ student.id }}" class="btn btn-warning">Edit</a>
+                            
+                            <!-- BARIS 74-79[DIUBAH] Tombol delete sekarang menggunakan form dengan metode POST -->
+                            <form action="{{ url_for('delete_student', id=student.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">Delete</button>
+                            </form>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
+    <!-- Baris 88-90 [DITAMBAHKAN] Script JS untuk Bootstrap (agar alert bisa ditutup) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
