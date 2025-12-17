@@ -70,8 +70,8 @@ def add_student():
     #     {'name': name, 'age': age, 'grade': grade}
     # )
     # db.session.commit()
-    query = f"INSERT INTO student (name, age, grade) VALUES ('{name}', {age}, '{grade}')"
-    cursor.execute(query)
+    query = "INSERT INTO student (name, age, grade) VALUES (?, ?, ?)"
+    cursor.execute(query,(name, age, grade))
     connection.commit()
     connection.close()
     return redirect(url_for('index'))
